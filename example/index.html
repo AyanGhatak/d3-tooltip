@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>D3 plugin</title>
+    <style type="text/css">
+		svg {
+			margin: 50px;
+			background: #f1ac97;
+		}
+
+		.d3-tooltip rect {
+			fill: rgba(75, 75, 75, 0.5);
+		}
+
+		.d3-tooltip text {
+			font-size: 12px;
+		}
+
+		.d3-tooltip-title text {
+			font-size: 15px;
+			font-family: monospace;
+		}
+
+		.d3-tooltip-title rect{
+			fill: rgba(255, 255, 255, 0.55);
+		}
+
+		.d3-tooltip-body rect {
+			fill: rgba(205, 220, 57, 0);	
+		}
+
+		.d3-tooltip-body rect {
+			fill: rgba(255, 255, 255, 0.35);
+		}
+
+		.d3-tooltip-body text {
+			stroke: white;	
+		}
+	</style>
+</head>
+<body>
+
+<div id="chart"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.4.0/d3.js"></script>
+<script type="text/javascript" src="./build/d3-tooltip.js"></script>
+<script type="text/javascript">
+	var w = 520,
+		h = 500,
+		svg = d3
+			.select("#chart")
+			.append("svg")
+				.attr("width", w)
+				.attr("height", h);	
+
+	
+	// --- Use of tooltip --
+	// var tooltip = d3.tooltip()
+	// //	.tooltext('A simple text')
+	// 	.attachTo(svg)
+	// 	.trackPointer(true)
+	// 	.offset ({x: 10, y: 10})
+	// 	.maxLimit(300)
+	// 	.onhover(
+	// 		function () {
+	// 			return this
+	// 				.style('display', 'block');
+
+	// 		},
+
+	// 		function (data, index, elem, pos) {
+	// 			var bBox = elem[0].getBBox();
+	// 			return this
+	// 				.transition()
+	// 				.duration(50)
+	// 				.delay(0)
+	// 				//.attr('x', (bBox.x + bBox.width + 10) + 'px')	
+	// 				.attr('transform', 'translate(' + (bBox.x + bBox.width + 10) + ',' + (bBox.y + bBox.height / 2) + ')');
+	// 		},
+
+	// 		function () {
+	// 			return this;
+	// 				// .style('display', 'none');	
+	// 		}	
+	// 		).tooltext(function (data, pos) {
+	// 			return '&#9666; ' + pos[0] + ', ' + pos[1] + '. Data: ' + data;
+	// 		});
+
+
+	var tooltip = d3.tooltip()
+		.attachTo(svg)
+		.constrain(520, 500)
+		.offset({x: 10, y: 10})
+		// .transition(d3.transition().duration(1000))
+		/*.track(
+			function (data, index, elem, pos) {
+				// var bBox = elem[0].getBBox();
+				// return this
+				// 	.transition()
+				// 	.duration(50)
+				// 	.delay(0)
+				// 	//.attr('x', (bBox.x + bBox.width + 10) + 'px')	
+				// 	.attr('transform', 'translate(' + (bBox.x + bBox.width + 10) + ',' + (bBox.y + bBox.height / 2) + ')');
+
+				return [10, 20]			
+			})*/;
+
+function attach(_data) {
+	var item = svg.selectAll('rect')
+		.data(_data);
+		item
+  		.enter()
+		.append("rect")
+			.merge(item)
+				.attr('x', function (d, i) { return i * 250; })
+				.attr('y', function (d, i) { return i * 250; })
+				.attr('width', function () { return 250; })
+				.attr('height', function () { return 250; })
+				.call(tooltip);
+}
+
+attach([
+	[
+		{
+			text: [function () {return  Math.random()}, 'title2ghuy']
+		},  
+		[
+    		{
+    			icon: function (x0, y0, r) { 
+					var x1 = x0 - r,
+						y1 = y0 - r,
+						x2 = x0 + r,
+						y2 = y0 - r,
+						x3 = x0 + r,
+						y3 = y0 + r,
+						x4 = x0 - r,
+						y4 = y0 + r;
+
+					return ['M'+ x1 + ',' + y1 + 'L' + x2 + ',' + y2 +
+						 'L'+ x3 + ',' + y3 + 'L'+ x4 + ',' + y4 + 'Z',
+						 {
+						 	style: {
+						 		fill: '#'+(Math.random()*0xFFFFFF<<0).toString(16)
+						 	}
+						 }
+						 ]; 
+				},
+    			text: [
+    				function () {
+	    				var c = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+	    				return [
+	    					Math.random(),
+	    					{
+	    						style: {
+	    							fill: c,
+	    							stroke: c
+	    						} 
+	    					}
+	    				]; 
+    				}, 
+    				'val1'
+    			],
+	    		rank: 2
+	    	},
+    		{
+    			icon: function () {},
+    			text: ['text2', 'val2'],
+    			rank: function () { return 1; }
+    		} 
+    	], 
+    	'text3'
+    ],
+    [
+    	null,  
+    	[
+			{
+				icon: function () {},
+    			text: ['_text1', '_val1'],
+    			rank: 2
+    		} 
+    	]
+    ]
+]);
+</script>
+</body>
+</html>
