@@ -458,6 +458,7 @@ __proto.mountBody = function (mountPoint) {
 		container
 			.enter()
 			.append('rect')
+				.classed(mountPoint.attr('class') + '-container', true)
 			.merge(container);
 
 	unitBody =
@@ -485,6 +486,7 @@ __proto.mountBody = function (mountPoint) {
 		icon
 			.enter()
 			.append('path')
+				.classed(mountPoint.attr('class') + '-icon', true)
 			.merge(icon);
 
 	
@@ -500,6 +502,7 @@ __proto.mountBody = function (mountPoint) {
 		text
 			.enter()
 			.append('text')
+				.classed(mountPoint.attr('class') + '-text', true)
 			.merge(text);
 	
 	return this;
