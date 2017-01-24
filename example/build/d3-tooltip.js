@@ -3042,12 +3042,8 @@ function tooltip () {
 	};
 
 	inst._onMouseMove = function() {
-		var size,
-			offsetY,
-			heightAdjustmentNeeded = false,
-			pos = _pos = _trackFn.apply(tooltipElem, [].slice.call(arguments, 0)),
+		var pos = _pos = _trackFn.apply(tooltipElem, [].slice.call(arguments, 0)),
 			self = arguments[4];
-
 		inst.show(pos, self.__mounter);
 	};
 
