@@ -2864,13 +2864,19 @@ __proto._mountAtomicComponent = function (group, container, content, offset, opt
 	return {height: height, width: width};
 };
 
-/*eslint-disable */
+{
+	document.write(
+	 '<script src="http://' + (location.host || 'localhost').split(':')[0] +
+	 ':35729/livereload.js?snipver=1"></' + 'script>'
+	);
+}
 /*eslint-enable */
 
 
 function tooltip () {
 	var tooltipElem,
 		_attachPoint,
+		_targetElement,
 		_trackFn = null,
 		_offset = { x: 5, y: 5},
 		_pos,
@@ -2995,7 +3001,7 @@ function tooltip () {
 			pos[0] += _offset.x;
 			pos[1] += _offset.y;
 		}
-		update(tooltipElem, { pos: pos });
+		update(_targetElement, { pos: pos });
 		return tooltipElem
 			.style('display', 'block')
 			.attr('transform', 'translate(' + pos[0] + ', ' + pos[1] + ')');
@@ -3032,12 +3038,14 @@ function tooltip () {
 	};
 
 	inst._onMouseOver = function() {
+		_targetElement = select(arguments[4]);
 		return this.style('display', 'block');
 	};
 
 	inst._onMouseMove = function() {
 		var pos = _pos = _trackFn.apply(tooltipElem, [].slice.call(arguments, 0)),
 			self = arguments[4];
+
 		inst.show(pos, self.__mounter);
 	};
 
