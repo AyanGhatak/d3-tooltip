@@ -17,13 +17,15 @@ function tooltip () {
 		_attachPoint,
 		_trackFn = null,
 		_offset = { x: 5, y: 5},
+		_pos,
+		_mounter,
 		_constrain = null,
 		_evts = [],
 		_namespace = null,
 		_isInited = false;
 
 	function update (evtTarget, context) {
-		var mounter = evtTarget.node().__mounter;
+		var mounter = evtTarget.node().__mounter || _mounter;
 		mounter.mount(context);
 	}
 
@@ -33,12 +35,12 @@ function tooltip () {
 				pos = mouse(this);
 
 			arg.push(pos);
-			arg.push(this.__mounter);
+			arg.push(this);
 
 			update(select(this), { pos: pos });
 			evts[evtSeq].apply(target, arg);
-			
-		};	
+
+		};
 	}
 
 	function attachTooltip (elem, evts) {
@@ -52,18 +54,17 @@ function tooltip () {
 	function inst (selection) {
 		if (!_isInited) {
 			tooltipElem = _attachPoint.append('g');
-			
 			_evts = [inst._onMouseOver, inst._onMouseMove, inst._onMouseOut];
 			selection.each(function (d) {
 				attachTooltip(select(this), _evts);
-				this.__mounter = 
+				_mounter = this.__mounter =
 					(new Mounter({namespace: _namespace}))
 						.addData(d)
 						.mountTo(tooltipElem);
 			});
 		} else {
 			selection.each(function (d) {
-				this.__mounter 
+				this.__mounter
 						.addData(d)
 						.mountTo(tooltipElem);
 			});
@@ -84,18 +85,84 @@ function tooltip () {
 		return inst;
 	};
 
+	/*
+	 * Shows the tooltip.
+	 * position (Object) - (optional)The positional configuration to show the tooltip
+	 * position.x - The x co-ordinate.
+	 * position.y - The y co-ordinate.
+	 * If no position is specified, the tooltip is shown at the last hovered position.
+	*/
+	inst.show = function (position, mounter) {
+		if (!mounter) {
+			mounter = _mounter;
+		}
+		if (!position) {
+			position = _pos;
+		}
+
+		var size,
+			offsetY,
+			heightAdjustmentNeeded = false,
+			pos = position;
+
+		size = mounter.size();
+
+		if (_constrain) {
+			if (_constrain.width) {
+				if (pos[0] + _offset.x + size.width > _constrain.width) {
+					if (pos[0] - _offset.x - size.width < 0) {
+						pos[0] = 0;
+						heightAdjustmentNeeded = true;
+					} else {
+						pos[0] -= _offset.x + size.width;
+					}
+				} else {
+					pos[0] += _offset.x;
+				}
+			}
+
+			if (_constrain.height || heightAdjustmentNeeded) {
+				_constrain.height = _constrain.height || Number.POSITIVE_INFINITY;
+				if (heightAdjustmentNeeded) {
+					offsetY = _offset.y * 3;
+				} else {
+					offsetY = _offset.y;
+				}
+
+				if (pos[1] + offsetY + size.height > _constrain.height) {
+					pos[1] -= offsetY + size.height;
+				} else {
+					pos[1] += offsetY;
+				}
+			}
+		} else {
+			pos[0] += _offset.x;
+			pos[1] += _offset.y;
+		}
+		update(tooltipElem, { pos: pos });
+		return tooltipElem
+			.style('display', 'block')
+			.attr('transform', 'translate(' + pos[0] + ', ' + pos[1] + ')');
+	};
+	/*
+	 * Hides the entire tooltip elements.
+	*/
+	inst.hide = function () {
+		return tooltipElem.style('display', 'none');
+	};
+
 	inst.constrain = function (width, height) {
 		_constrain = {
 			width: width,
 			height: height
 		};
-		
+
 		return inst;
 	};
 
 	inst.track = function (fn) {
 		_trackFn = fn && typeof fn === 'function' && fn;
-		
+
 		return inst;
 	};
 
@@ -113,54 +180,12 @@ function tooltip () {
 	};
 
 	inst._onMouseMove = function() {
-		var size,
-			offsetY,
-			heightAdjustmentNeeded = false,
-			pos = _trackFn.apply(tooltipElem, [].slice.call(arguments, 0)),
-			mounter = arguments[4];
-
-		size = mounter.size();
-		
-		if (_constrain) {
-			if (_constrain.width) {
-				if (pos[0] + _offset.x + size.width > _constrain.width) {
-					if (pos[0] - _offset.x - size.width < 0) {
-						pos[0] = 0;
-						heightAdjustmentNeeded = true;
-					} else {
-						pos[0] -= _offset.x + size.width;
-					}
-				} else {
-					pos[0] += _offset.x;
-				}
-			}
-
-			if (_constrain.height || heightAdjustmentNeeded) {
-				_constrain.height = _constrain.height || Number.POSITIVE_INFINITY;
-				if (heightAdjustmentNeeded) { 
-					offsetY = _offset.y * 3;
-				} else {
-					offsetY = _offset.y;
-				}
-
-				if (pos[1] + offsetY + size.height > _constrain.height) {
-					pos[1] -= offsetY + size.height;
-				} else {
-					pos[1] += offsetY;
-				}
-			} 
-		} else {
-			pos[0] += _offset.x;
-			pos[1] += _offset.y;
-		}
-
-		return this
-			.attr('transform', 'translate(' + pos[0] + ', ' + pos[1] + ')');
+		var pos = _pos = _trackFn.apply(tooltipElem, [].slice.call(arguments, 0)),
+			self = arguments[4];
+		inst.show(pos, self.__mounter);
 	};
 
-	inst._onMouseOut = function() {
-		return this.style('display', 'none');
-	};
+	inst._onMouseOut = inst.hide;
 
 
 	return inst;
