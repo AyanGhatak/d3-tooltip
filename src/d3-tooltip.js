@@ -148,7 +148,7 @@ function tooltip () {
 	 * Hides the entire tooltip elements.
 	*/
 	inst.hide = function () {
-		// return tooltipElem.style('display', 'none');
+		return tooltipElem.style('display', 'none');
 	};
 
 	inst.constrain = function (width, height) {
