@@ -12,6 +12,7 @@
     "prepublish": "script/prepublish",
     "start": "script/start",
     "dev": "NODE_ENV=dev && script/prepublish --watch",
+    "build": "NODE_ENV=production script/prepublish",
     "reload": "livereload 'example/build/'",
     "watch": "npm-run-all --parallel reload dev"
   },

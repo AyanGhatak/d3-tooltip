@@ -3,7 +3,7 @@ export var version = "1.0.0";
 export var description = "Pure SVG tooltip in d3";
 export var main = "index.js";
 export var directories = {"test":"test"};
-export var scripts = {"pretest":"script/pretest","test":"script/test","prepublish":"script/prepublish","start":"script/start","dev":"NODE_ENV=dev && script/prepublish --watch","reload":"livereload 'example/build/'","watch":"npm-run-all --parallel reload dev"};
+export var scripts = {"pretest":"script/pretest","test":"script/test","prepublish":"script/prepublish","start":"script/start","dev":"NODE_ENV=dev && script/prepublish --watch","build":"NODE_ENV=production script/prepublish","reload":"livereload 'example/build/'","watch":"npm-run-all --parallel reload dev"};
 export var repository = {"type":"git","url":"git+https://github.com/akash-goswami/d3-tooltip.git"};
 export var author = "";
 export var license = "MIT";
