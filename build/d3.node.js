@@ -783,6 +783,7 @@ if (ENV !== 'production') {
 function tooltip () {
 	var tooltipElem,
 		_attachPoint,
+		_targetElement,
 		_trackFn = null,
 		_offset = { x: 5, y: 5},
 		_pos,
@@ -805,7 +806,6 @@ function tooltip () {
 			arg.push(pos);
 			arg.push(this);
 
-			update(d3Selection.select(this), { pos: pos });
 			evts[evtSeq].apply(target, arg);
 
 		};
@@ -815,7 +815,6 @@ function tooltip () {
 		elem.on('mouseover.d3-tooltip', mouseHoverHandler(0, evts, tooltipElem));
 		elem.on('mousemove.d3-tooltip', mouseHoverHandler(1, evts, tooltipElem));
 		elem.on('mouseout.d3-tooltip', mouseHoverHandler(2, evts, tooltipElem));
-
 		return elem;
 	}
 
@@ -868,6 +867,8 @@ function tooltip () {
 			position = _pos;
 		}
 
+		update(_targetElement, { pos: position });
+
 		var size,
 			offsetY,
 			heightAdjustmentNeeded = false,
@@ -907,7 +908,6 @@ function tooltip () {
 			pos[0] += _offset.x;
 			pos[1] += _offset.y;
 		}
-		update(tooltipElem, { pos: pos });
 		return tooltipElem
 			.style('display', 'block')
 			.attr('transform', 'translate(' + pos[0] + ', ' + pos[1] + ')');
@@ -916,7 +916,7 @@ function tooltip () {
 	 * Hides the entire tooltip elements.
 	*/
 	inst.hide = function () {
-		// return tooltipElem.style('display', 'none');
+		return tooltipElem.style('display', 'none');
 	};
 
 	inst.constrain = function (width, height) {
@@ -950,6 +950,8 @@ function tooltip () {
 	inst._onMouseMove = function() {
 		var pos = _pos = _trackFn.apply(tooltipElem, [].slice.call(arguments, 0)),
 			self = arguments[4];
+
+		_targetElement = d3Selection.select(self);
 		inst.show(pos, self.__mounter);
 	};
 
